@@ -1,0 +1,8 @@
+﻿.venv/
+__pycache__/
+mlruns/
+.dvc/
+*.lock
+.env
+data/raw/*
+
