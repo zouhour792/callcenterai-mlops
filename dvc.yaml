@@ -1,0 +1,8 @@
+stages:
+  prepare:
+    cmd: python src/pipelines/prepare_data.py
+    deps:
+      - src/pipelines/prepare_data.py
+      - data/raw/all_tickets_processed_improved_v3.csv
+    outs:
+      - data/processed

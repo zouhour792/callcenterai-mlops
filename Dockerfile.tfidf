@@ -1,0 +1,10 @@
+FROM python:3.10-slim
+WORKDIR /app
+
+COPY api/api_tfidf ./api_tfidf
+COPY models/tfidf.joblib ./models/tfidf.joblib
+
+RUN pip install --no-cache-dir fastapi uvicorn joblib prometheus_client
+
+EXPOSE 8001
+CMD ["uvicorn", "api_tfidf.main:app", "--host", "0.0.0.0", "--port", "8001"]

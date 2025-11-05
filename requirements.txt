@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pydantic
+requests
+transformers
+torch
+joblib
+scikit-learn
+pandas
+numpy
+datasets
+evaluate
+mlflow
+langdetect
+prometheus-client

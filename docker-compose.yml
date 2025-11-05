@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  tfidf-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile.tfidf
+    container_name: tfidf-svc
+    ports:
+      - "8001:8001"
+    networks:
+      - callcenterai-net
+
+  transformer-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile.transformer
+    container_name: transformer-svc
+    ports:
+      - "8002:8002"
+    networks:
+      - callcenterai-net
+
+  agent-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: agent-svc
+    ports:
+      - "8000:8000"
+    depends_on:
+      - tfidf-svc
+      - transformer-svc
+    networks:
+      - callcenterai-net
+
+networks:
+  callcenterai-net:
+    driver: bridge
