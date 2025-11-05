@@ -1,4 +1,12 @@
-﻿.venv/
+﻿# Ignorer les modèles lourds
+models/**/*.bin
+models/**/*.pt
+models/**/*.safetensors
+models/**/checkpoint-*/
+mlruns/
+data/
+
+.venv/
 __pycache__/
 mlruns/
 .dvc/
