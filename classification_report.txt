@@ -1,0 +1,14 @@
+                       precision    recall  f1-score   support
+
+               Access       0.84      0.91      0.87      1425
+Administrative rights       0.60      0.88      0.71       352
+           HR Support       0.87      0.83      0.85      2183
+             Hardware       0.88      0.68      0.77      2724
+     Internal Project       0.74      0.93      0.83       424
+        Miscellaneous       0.73      0.83      0.78      1412
+             Purchase       0.87      0.90      0.89       493
+              Storage       0.77      0.94      0.85       555
+
+             accuracy                           0.81      9568
+            macro avg       0.79      0.86      0.82      9568
+         weighted avg       0.83      0.81      0.81      9568
