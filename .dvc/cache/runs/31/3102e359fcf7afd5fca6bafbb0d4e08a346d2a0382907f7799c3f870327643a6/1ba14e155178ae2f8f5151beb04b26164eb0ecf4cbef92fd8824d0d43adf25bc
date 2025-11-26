@@ -1,0 +1,16 @@
+cmd: python src/pipelines/prepare_data.py
+deps:
+- path: data/raw/all_tickets_processed_improved_v3.csv
+  hash: md5
+  md5: a05aa13d753884547cc46e6f525bfb82
+  size: 14568920
+- path: src/pipelines/prepare_data.py
+  hash: md5
+  md5: 2bdca53f854f8c48905cdcff9be53005
+  size: 1392
+outs:
+- path: data/processed
+  hash: md5
+  md5: f45c90477a9f2aefb2f1291592165c6a.dir
+  size: 14568482
+  nfiles: 2
