@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 RAW_PATH = "data/raw/all_tickets_processed_improved_v3.csv"
 PROCESSED_DIR = "data/processed"
 
+
 def clean_text(text: str) -> str:
     """Nettoyage basique du texte"""
     text = str(text).lower()
@@ -13,6 +14,7 @@ def clean_text(text: str) -> str:
     text = re.sub(r"[^a-zA-Z0-9À-ž\s]", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
+
 
 def main():
     os.makedirs(PROCESSED_DIR, exist_ok=True)
@@ -37,6 +39,7 @@ def main():
     test_df.to_csv(os.path.join(PROCESSED_DIR, "test.csv"), index=False)
 
     print("✅ Données prêtes dans data/processed/")
+
 
 if __name__ == "__main__":
     main()

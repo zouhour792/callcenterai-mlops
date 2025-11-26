@@ -34,17 +34,21 @@ model.eval()
 # === SCHÉMA D'ENTRÉE =====================================
 # =========================================================
 
+
 class Ticket(BaseModel):
     text: str
+
 
 # =========================================================
 # === ROUTES ==============================================
 # =========================================================
 
+
 @app.get("/health")
 def health():
     """Vérifie que le service est opérationnel."""
     return {"status": "healthy", "device": str(device)}
+
 
 @app.post("/predict")
 def predict(ticket: Ticket):
@@ -54,11 +58,7 @@ def predict(ticket: Ticket):
 
     # Préparation de l'entrée
     inputs = tokenizer(
-        ticket.text,
-        return_tensors="pt",
-        truncation=True,
-        padding=True,
-        max_length=128
+        ticket.text, return_tensors="pt", truncation=True, padding=True, max_length=128
     )
     inputs = {k: v.to(device) for k, v in inputs.items()}
 
@@ -74,7 +74,7 @@ def predict(ticket: Ticket):
     response = {
         "label": label,
         "confidence": round(confidence, 3),
-        "source": "local" if os.path.exists(LOCAL_MODEL_PATH) else "huggingface"
+        "source": "local" if os.path.exists(LOCAL_MODEL_PATH) else "huggingface",
     }
 
     # Optionnel : avertissement si la confiance est faible

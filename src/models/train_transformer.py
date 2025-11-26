@@ -59,9 +59,11 @@ test_df = pd.read_csv(TEST_PATH)
 
 # Rééquilibrage (oversampling)
 min_samples = train_df["Topic_group"].value_counts().min()
-train_df = train_df.groupby("Topic_group").apply(
-    lambda x: x.sample(min_samples, replace=True, random_state=42)
-).reset_index(drop=True)
+train_df = (
+    train_df.groupby("Topic_group")
+    .apply(lambda x: x.sample(min_samples, replace=True, random_state=42))
+    .reset_index(drop=True)
+)
 
 train_dataset = Dataset.from_pandas(train_df)
 test_dataset = Dataset.from_pandas(test_df)
@@ -72,8 +74,10 @@ test_dataset = Dataset.from_pandas(test_df)
 
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
+
 def preprocess_function(examples):
     return tokenizer(examples["Document"], truncation=True, max_length=128)
+
 
 train_dataset = train_dataset.map(preprocess_function, batched=True)
 test_dataset = test_dataset.map(preprocess_function, batched=True)
@@ -86,8 +90,10 @@ labels = sorted(train_df["Topic_group"].unique())
 label2id = {label: idx for idx, label in enumerate(labels)}
 id2label = {idx: label for label, idx in label2id.items()}
 
+
 def map_labels(example):
     return {"labels": label2id[example["Topic_group"]]}
+
 
 train_dataset = train_dataset.map(map_labels)
 test_dataset = test_dataset.map(map_labels)
@@ -125,11 +131,13 @@ args = TrainingArguments(
 # === 9. MÉTRIQUES ===========================================
 # ============================================================
 
+
 def compute_metrics(eval_pred):
     preds, labels = eval_pred
     preds = np.argmax(preds, axis=1)
     acc = (preds == labels).mean()
     return {"accuracy": acc}
+
 
 # ============================================================
 # === 10. ENTRAÎNEMENT =======================================

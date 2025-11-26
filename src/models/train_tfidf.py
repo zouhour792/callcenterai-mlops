@@ -23,10 +23,12 @@ X_test, y_test = test["Document"], test["Topic_group"]
 mlflow.set_experiment("CallCenterAI-TFIDF")
 
 with mlflow.start_run():
-    pipeline = Pipeline([
-        ("tfidf", TfidfVectorizer(max_features=5000, ngram_range=(1, 2))),
-        ("svm", CalibratedClassifierCV(LinearSVC(), cv=3))
-    ])
+    pipeline = Pipeline(
+        [
+            ("tfidf", TfidfVectorizer(max_features=5000, ngram_range=(1, 2))),
+            ("svm", CalibratedClassifierCV(LinearSVC(), cv=3)),
+        ]
+    )
 
     print("🚀 Entraînement du modèle TF-IDF + SVM...")
     pipeline.fit(X_train, y_train)
