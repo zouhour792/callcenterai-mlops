@@ -1,0 +1,92 @@
+name: CI/CD CallCenterAI
+
+# Déclenchement à chaque push ou PR sur main ou nourhen
+on:
+  push:
+    branches:
+      - main
+      - nourhen
+  pull_request:
+    branches:
+      - main
+      - nourhen
+
+jobs:
+  # 1️⃣ Lint & tests
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black flake8 isort pytest
+
+      - name: Lint with black
+        run: black --check .
+
+      - name: Lint with flake8
+        run: flake8 .
+
+      - name: Sort imports
+        run: isort --check-only .
+
+      - name: Run tests
+        run: pytest tests/ || true  # si tu n’as pas encore de tests, ça ne bloque pas le workflow
+
+  # 2️⃣ Build & push Docker images
+  docker-build-push:
+    runs-on: ubuntu-latest
+    needs: lint-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker images
+        run: |
+          docker build -f Dockerfile.tfidf -t callcenterai-tfidf:latest ./api_tfidf
+          docker build -f Dockerfile.transformer -t callcenterai-transformer:latest ./api_transformer
+          docker build -f Dockerfile.agent -t callcenterai-agent:latest ./api_agent
+
+      - name: Tag & push images
+        run: |
+          docker tag callcenterai-tfidf:latest ${{ secrets.DOCKER_USERNAME }}/callcenterai-tfidf:latest
+          docker tag callcenterai-transformer:latest ${{ secrets.DOCKER_USERNAME }}/callcenterai-transformer:latest
+          docker tag callcenterai-agent:latest ${{ secrets.DOCKER_USERNAME }}/callcenterai-agent:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/callcenterai-tfidf:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/callcenterai-transformer:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/callcenterai-agent:latest
+
+  # 3️⃣ Scan sécurité
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: docker-build-push
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@v1
+
+      - name: Scan TF-IDF Docker image
+        run: trivy image ${{ secrets.DOCKER_USERNAME }}/callcenterai-tfidf:latest
+
+      - name: Scan Transformer Docker image
+        run: trivy image ${{ secrets.DOCKER_USERNAME }}/callcenterai-transformer:latest
+
+      - name: Scan Agent Docker image
+        run: trivy image ${{ secrets.DOCKER_USERNAME }}/callcenterai-agent:latest

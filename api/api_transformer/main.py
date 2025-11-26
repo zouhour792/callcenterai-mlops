@@ -11,7 +11,7 @@ app = FastAPI(title="Transformer API", version="2.0")
 # =========================================================
 
 # Nom du modèle sur Hugging Face Hub
-HF_MODEL_NAME = "callcenterai_mopls"
+HF_MODEL_NAME = "zouhour792/callcenterai_mopls"
 # Chemin local de secours
 LOCAL_MODEL_PATH = "models/transformer"
 

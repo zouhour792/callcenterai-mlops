@@ -5,7 +5,7 @@ import joblib
 
 app = FastAPI(title="TF-IDF API", version="1.1")
 
-model = joblib.load("models/tfidf.joblib")
+model = joblib.load("../models/tfidf.joblib")
 
 registry = CollectorRegistry()
 PRED_REQUESTS = Counter("tfidf_requests_total", "Nombre total de requêtes TF-IDF", registry=registry)
