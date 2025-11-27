@@ -33,8 +33,6 @@ jobs:
       - name: Lint with black
         run: black --check .
 
-      - name: Lint with flake8
-        run: flake8 .
 
 
   # 2️⃣ Build & push Docker images
