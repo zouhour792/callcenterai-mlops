@@ -46,6 +46,6 @@ jobs:
 
       - name: Build Docker images
         run: |
-          docker build -f api_tfidf/Dockerfile.tfidf -t callcenterai-tfidf:latest ./api_tfidf
-          docker build -f api_transformer/Dockerfile.transformer -t callcenterai-transformer:latest ./api_transformer
-          docker build -f api_agent/Dockerfile.agent -t callcenterai-agent:latest ./api_agent
+          docker build -f Dockerfile.tfidf -t callcenterai-tfidf:latest ./api_tfidf
+          docker build -f Dockerfile.transformer -t callcenterai-transformer:latest ./api_transformer
+          docker build -f Dockerfile.agent -t callcenterai-agent:latest ./api_agent
