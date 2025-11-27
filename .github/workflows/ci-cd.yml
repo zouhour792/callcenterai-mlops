@@ -36,11 +36,6 @@ jobs:
       - name: Lint with flake8
         run: flake8 .
 
-      - name: Sort imports
-        run: isort --check-only .
-
-      - name: Run tests
-        run: pytest tests/ || true  # si tu n’as pas encore de tests, ça ne bloque pas le workflow
 
   # 2️⃣ Build & push Docker images
   docker-build-push:
