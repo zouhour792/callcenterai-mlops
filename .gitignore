@@ -3,6 +3,7 @@ models/**/*.bin
 models/**/*.pt
 models/**/*.safetensors
 models/**/checkpoint-*/
+src/models/.env
 mlruns/
 
 __pycache__/
