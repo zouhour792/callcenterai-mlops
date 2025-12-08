@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CallCenterAI - Classification de Tickets</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-gradient"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title">CallCenterAI</h1>
+                <p class="header-subtitle">Système Avancé de Classification de Tickets</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="grid-container">
+                <!-- Left Panel - Input -->
+                <section class="panel input-panel">
+                    <h2 class="panel-title">Nouveau Ticket</h2>
+                    
+                    <div class="form-group">
+                        <label for="ticketText" class="label">Texte du ticket</label>
+                        <textarea 
+                            id="ticketText" 
+                            class="textarea" 
+                            placeholder="Décrivez le problème ou la demande du client..."
+                            maxlength="2000"
+                        ></textarea>
+                        <div class="char-count">
+                            <span id="charCount">0</span> / 2000 caractères
+                        </div>
+                    </div>
+                    <button onclick="sendTicket()" class="button button-primary">
+                        <span class="button-text">Envoyer pour Prédiction</span>
+                        <span class="button-icon">→</span>
+                    </button>
+
+                    <div id="loading" class="loading" style="display: none;">
+                        <span class="spinner"></span>
+                        <p>Analyse en cours...</p>
+                    </div>
+                </section>
+
+                <!-- Right Panel - Results -->
+                <section class="panel result-panel">
+                    <h2 class="panel-title">Résultat de Classification</h2>
+                    
+                    <div id="resultContainer" class="result-container" style="display: none;">
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h3 class="result-label-title">Catégorie Prédite</h3>
+                                <span id="resultLabel" class="result-label-badge">-</span>
+                            </div>
+
+                            <div class="confidence-section">
+                                <div class="confidence-header">
+                                    <p class="confidence-label">Score de Confiance</p>
+                                    <span id="confidenceScore" class="confidence-percentage">0%</span>
+                                </div>
+                                <div class="confidence-bar-container">
+                                    <div id="confidenceBar" class="confidence-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="result-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Modèle utilisé</span>
+                                    <span id="modelUsed" class="detail-value">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Statut</span>
+                                    <span id="statusBadge" class="status-badge status-success">✓ Classifiée</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="emptyState" class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p>Soumettez un ticket pour voir le résultat de classification</p>
+                    </div>
+
+                    <div id="errorContainer" class="error-container" style="display: none;">
+                        <svg class="error-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <p id="errorMessage">Une erreur s'est produite</p>
+                        <button onclick="clearError()" class="button button-secondary">Fermer</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Character counter
+        document.getElementById('ticketText').addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+
+        // Get category color
+        function getCategoryColor(category) {
+            const colors = {
+                'Technique': '#3b82f6',
+                'Facturation': '#f59e0b',
+                'Commande': '#10b981',
+                'Compte': '#8b5cf6',
+                'Autre': '#6b7280'
+            };
+            return colors[category] || '#6b7280';
+        }
+
+        // Send ticket
+       async function sendTicket() {
+    const text = document.getElementById('ticketText').value;
+    const loading = document.getElementById('loading');
+    const resultContainer = document.getElementById('resultContainer');
+    const emptyState = document.getElementById('emptyState');
+    const errorContainer = document.getElementById('errorContainer');
+
+    if (!text.trim()) {
+        showError('Veuillez écrire un texte de ticket.');
+        return;
+    }
+
+    loading.style.display = 'flex';
+    resultContainer.style.display = 'none';
+    emptyState.style.display = 'none';
+    errorContainer.style.display = 'none';
+
+    const url = 'http://localhost:8000/predict'; // Appel direct à l'agent
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text })
+        });
+
+        loading.style.display = 'none';
+
+        if (response.ok) {
+            const data = await response.json();
+            displayResult(data);
+        } else {
+            showError('Erreur lors de la prédiction. Veuillez réessayer.');
+        }
+    } catch (error) {
+        loading.style.display = 'none';
+        showError('Impossible de contacter le service de prédiction.');
+    }
+}
+
+
+        // Display result
+            function displayResult(data) {
+            const resultContainer = document.getElementById('resultContainer');
+            const emptyState = document.getElementById('emptyState');
+            const errorContainer = document.getElementById('errorContainer');
+
+            document.getElementById('resultLabel').textContent = data.label || 'N/A';
+            
+            const confidence = Math.round((parseFloat(data.confidence) || 0) * 100);
+            document.getElementById('confidenceScore').textContent = confidence + '%';
+            document.getElementById('confidenceBar').style.width = confidence + '%';
+            
+            const barColor = getCategoryColor(data.label);
+            document.getElementById('confidenceBar').style.backgroundColor = barColor;
+            document.getElementById('resultLabel').style.borderColor = barColor;
+
+            // Afficher le modèle choisi par l'agent
+            document.getElementById('modelUsed').textContent = data.model || '-';
+
+            emptyState.style.display = 'none';
+            errorContainer.style.display = 'none';
+            resultContainer.style.display = 'block';
+        }
+
+        // Show error
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorContainer').style.display = 'flex';
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        // Clear error
+        function clearError() {
+            document.getElementById('errorContainer').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware  # Ajoutez cette ligne
 from pydantic import BaseModel
 import requests, re
 from langdetect import detect, DetectorFactory
@@ -8,6 +9,16 @@ from urllib3.util import Retry
 DetectorFactory.seed = 0
 
 app = FastAPI(title="Agent IA API", version="3.0")
+
+# Ajoutez cette configuration CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En développement, en production spécifiez les origines
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # URLs (pour Docker)
 TFIDF_URL = "http://tfidf-svc:8001/predict"

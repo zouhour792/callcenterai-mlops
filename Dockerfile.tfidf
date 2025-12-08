@@ -1,10 +1,24 @@
 FROM python:3.10-slim
 WORKDIR /app
 
+# Installer les dépendances système minimales
+RUN apt-get update && apt-get install -y gcc g++ && rm -rf /var/lib/apt/lists/*
+
+# Créer le dossier models
+RUN mkdir -p /app/models
+
+# Installer pip et dépendances Python
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn[standard] \
+    joblib \
+    prometheus_client \
+    scikit-learn  # <-- Sans version spécifique
+
+# Copier le code et le modèle
 COPY api/api_tfidf ./api_tfidf
 COPY models/tfidf.joblib ./models/tfidf.joblib
 
-RUN pip install --no-cache-dir fastapi uvicorn joblib prometheus_client
-
 EXPOSE 8001
+
 CMD ["uvicorn", "api_tfidf.main:app", "--host", "0.0.0.0", "--port", "8001"]

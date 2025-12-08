@@ -13,3 +13,5 @@ evaluate
 mlflow
 langdetect
 prometheus-client
+numpy
+scipy
